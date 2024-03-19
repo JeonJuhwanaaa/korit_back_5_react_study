@@ -1,13 +1,12 @@
 /** @jsxImportSource @emotion/react */
 import { useRecoilState } from "recoil";
-import * as s from "./style";
+import * as s from "./style copy";
 import { HiMenu } from "react-icons/hi"
 import { menuState } from "../../atoms/menuAtom";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FiUser } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
-import { RiSettings4Line } from "react-icons/ri";
 
 
 function RootSideMenuLeft() {
@@ -17,7 +16,6 @@ function RootSideMenuLeft() {
     const [ isLogin, setLogin ] = useState(false);
     const queryClient = useQueryClient();
     const principalQueryState = queryClient.getQueryState("principalQuery");
-    const navigate = useNavigate();
 
     useEffect(() => {
         setLogin(() => principalQueryState.status === "success");
@@ -28,38 +26,37 @@ function RootSideMenuLeft() {
     }
 
     return (
-        <div css={s.layout(show)} onClick={(e) => e.stopPropagation()} >
+        <div css={s.layout(show)} >
             <div css={s.header}>
                 <button css={s.menuButton} onClick={handleCloseClick}>
                     <HiMenu />
                 </button>
             </div>
 
-            <div css={s.profile}>
+            <div css={s.profilelayout}>
+
                 {
-                    !isLogin 
+                    !isLogin
                     ?
-                    <div css={s.authButtons}>
-                        <button onClick={() => navigate("/auth/signin")}>로그인</button>
-                        <button onClick={() => navigate("/auth/signup")}>회원가입</button>
-                    </div>
+                    <>
+                        <Link css={s.needLogin} to={"/auth/signin"} onClick={handleCloseClick}>
+                            로그인을 해주세요
+                        </Link>
+                        <div css={s.profileName}>name</div>
+                        <div css={s.profileEmail}>email</div>
+                    </>
                     :
                     <>
-                        <div css={s.settings}>
-                            <RiSettings4Line />
-                        </div>
-                        <div css={s.profileBox}>
-                            <div css={s.profileImg}>
-                                <FiUser />
-                            </div>
-                            <div css={s.usernameAndEmail}>
-                                <span>{principalQueryState.data.data.username}</span>
-                                <span>{principalQueryState.data.data.email}</span>
-                            </div>
-                        </div>
+                        <button css={s.profile}>
+                            <FiUser />
+                        </button>
+                        <div css={s.profileName}>name</div>
+                        <div css={s.profileEmail} >email</div>
                     </>
                 }
             </div>
+            
+
 
             <div css={s.menuList}>
                 <Link css={s.menuLink}>
