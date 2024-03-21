@@ -5,16 +5,13 @@ import AuthPageInput from '../../components/AuthPageInput/AuthPageInput';
 import RightTopButton from "../../components/RightTopButton/RightTopButton";
 import { useInput } from "../../hooks/useInput";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { signupRequest } from "../../apis/api/signup";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { oAuth2SignupRequest, signupRequest } from "../../apis/api/signup";
+import { useMutation } from "react-query";
 
-function SignupPage() {
+function OAuth2SignupPage() {
 
-    // const testErrorMessage = {
-    //     type : "success",
-    //     text : "이미 등록된 사용자이름입니다."
-    // }
-
+    const [ searchParams ] = useSearchParams();
     const navigate = useNavigate();
 
     // 배열로 되어있기때문에 자리 지켜주기
@@ -26,13 +23,41 @@ function SignupPage() {
 
     const [ checkPasswordMessage, setCheckPasswordMessage ] = useState(null);
 
+    const oAuth2SignupMutation = useMutation({
+        mutationKey: "oAuth2SignupMutation",
+        mutationFn: oAuth2SignupRequest,
+        onSuccess: response => {
+            navigate("/auth/signin");
+        },
+        onError: error => {
+            if( error.response.status === 400) {
+
+                const errorMap = error.response.data;
+                const errorEntries = Object.entries(errorMap);
+
+                for(let [k , v] of errorEntries) {
+                    if(k === "username") {
+                        setUsernameMessage(() => {
+                            return {
+                                type: "error",
+                                text: v
+                            }
+                        })
+                    }
+                }
+            }else {
+                alert("회원가입 오류");
+            }
+        }
+    });
+    
+
+
     useEffect(() => {
-        // checkPassword 비었을 경우
         if(!checkPassword || !password) {
             setCheckPasswordMessage(() => null);
             return;
         }
-
         if(checkPassword === password) {
             setCheckPasswordMessage(() => {
                 return {
@@ -66,44 +91,21 @@ function SignupPage() {
             return;
         }
 
-        signupRequest({
+        // 위쪽 MutationFn 요청 
+        oAuth2SignupMutation.mutate({
             username,
             password,
             name,
-            email
-        }).then(response => {
-            console.log(response);
-            if(response.status === 201) {
-                navigate("/auth/signin");
-            }
-        }).catch(error => {
-            // 400번 오류(중복되었을 때)
-            if( error.response.status === 400) {
-
-                const errorMap = error.response.data;
-                const errorEntries = Object.entries(errorMap);
-
-                for(let [k , v] of errorEntries) {
-                    if(k === "username") {
-                        setUsernameMessage(() => {
-                            return {
-                                type: "error",
-                                text: v
-                            }
-                        })
-                    }
-                }
-            }else {
-                alert("회원가입 오류");
-            }
+            email,
+            oauth2Name: searchParams.get("name"),
+            providerName: searchParams.get("provider")
         });
     }
-
 
     return (
         <>
             <div css={s.header}>
-                <h1>회원가입</h1>
+                <h2>회원가입({searchParams.get("provider")})</h2>
                 <RightTopButton onClick={handleSignupSubmit}>가입하기</RightTopButton>
             </div>
 
@@ -116,4 +118,4 @@ function SignupPage() {
     );
 }
 
-export default SignupPage;
+export default OAuth2SignupPage;

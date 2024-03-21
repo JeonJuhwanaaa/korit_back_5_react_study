@@ -12,3 +12,7 @@ export const signupRequest = async (data) => {
         return error.response;
     }
 }
+
+export const oAuth2SignupRequest = async (data) => {
+    return await instansce.post("/auth/oauth2/signup", data);
+}

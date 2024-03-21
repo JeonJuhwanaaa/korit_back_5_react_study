@@ -10,7 +10,9 @@ function MyPage() {
 
     const queryClient = useQueryClient();
     const principalData = queryClient.getQueryData("principalQuery");       // AuthRoute에 있는 키값 가져오기위함
-    // reactQuery 라이브러리 중 하나, get요청 외 나머지는 Mutation 사용 / get요청은 
+    
+    // get요청은 ussQuery 사용
+    // reactQuery 라이브러리 중 하나, get요청 외 나머지는 useMutation 사용
     const sendAuthMailMutation = useMutation({
         mutationKey: "sendAuthMailMutation",
         mutationFn: sendAuthMailRequest,
