@@ -1,46 +1,51 @@
 /** @jsxImportSource @emotion/react */
-import { Link } from "react-router-dom";
+import { useMutation } from "react-query";
 import AuthPageInput from "../../components/AuthPageInput/AuthPageInput";
 import RightTopButton from "../../components/RightTopButton/RightTopButton";
 import { useInput } from "../../hooks/useInput";
 import * as s from "./style";
-import { signinRequest } from "../../apis/api/signin";
+import { oAuth2MergeRequest } from "../../apis/api/oAuth2Merge";
+import { useSearchParams } from "react-router-dom";
 
-function SigninPage() {
 
+function OAuth2MergePage() {
+
+    const [ searchParams ] = useSearchParams();
     const [ username, usernameChange ] = useInput();
     const [ password, passwordChange ] = useInput();
 
-    const handleSigninSubmit = () => {
-        signinRequest({
-            username,
-            password
-        }).then(response => {
-            const accessToken = response.data;
-            localStorage.setItem("AccessToken", accessToken);
-            window.location.replace("/");
-        }).catch(error => {
+    const oAuth2MergeMutation = useMutation({
+        mutationKey: "oAuth2MergeMutation",
+        mutationFn: oAuth2MergeRequest,
+        onSuccess: response => {
+            alert("계정 통합이 완료되었습니다.\n다시 로그인 하세요.");
+            window.location.replace("/auth/signin");
+        },
+        onError: error => {
             alert(error.response.data);
+        }
+    });
+
+    const handleSigninSubmit = () => {
+        oAuth2MergeMutation.mutate({
+            username,
+            password,
+            oauth2Name: searchParams.get("name"),
+            providerName: searchParams.get("provider")
         })
+
     }
 
     return (
         <>
             <div css={s.layout}>
-                <h1>로그인</h1>
+                <h2>계정 통합 로그인</h2>
                 <RightTopButton onClick={handleSigninSubmit}>로그인하기</RightTopButton>
             </div>
-
             <AuthPageInput type={"text"} name={"username"} placeholder={"사용자이름"} value={username} onChange={usernameChange}/>
             <AuthPageInput type={"password"} name={"password"} placeholder={"비밀번호"} value={password} onChange={passwordChange}/>
-            <Link to={"/auth/signup"}>회원가입</Link>
-            <div >
-                <a href="http://localhost:8080/oauth2/authorization/kakao">카카오 로그인</a>
-                <a href="http://localhost:8080/oauth2/authorization/google">구글 로그인</a>
-                <a href="http://localhost:8080/oauth2/authorization/naver">네이버 로그인</a>
-            </div>
         </>
     );
 }
 
-export default SigninPage;
+export default OAuth2MergePage;

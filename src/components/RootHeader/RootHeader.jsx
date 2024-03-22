@@ -29,7 +29,6 @@ function RootHeader() {
         setShow(() => true)
     }
     
-
     const handleLogoutClick = () => {
         localStorage.removeItem("AccessToken");
         instance.interceptors.request.use((config) => {     // requset 요청 전에 낚아챌것이다 
@@ -37,8 +36,8 @@ function RootHeader() {
             return config;
         });
         queryClient.refetchQueries("principalQuery");
+        window.location.replace("/auth/signin");
     }
-
 
     return (
         <div css={s.header}>

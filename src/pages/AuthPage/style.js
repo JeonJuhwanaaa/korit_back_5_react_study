@@ -8,5 +8,4 @@ export const layout = css`
     
     width: 300px;
     height: 500px;
-
 `;
