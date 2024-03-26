@@ -12,12 +12,14 @@ import { storage } from "../../../apis/firebase/config/firebaseConfig";
 import {v4 as uuid} from "uuid";
 import RightTopButton from "../../../components/RightTopButton/RightTopButton";
 import { registerBook } from "../../../apis/api/bookApi";
+import AdminBookSearch from "../../../components/AdminBookSearch/AdminBookSearch";
 
 function BookManagement(props) {
 
     const [ bookTypeOptions, setBookTypeOptions ] = useState([]);
     const [ categoryOptions, setCategoryOptions ] = useState([]);
     const fileRef = useRef();
+
     const inputRefs = [
         useRef(),           // [0] bookId
         useRef(),           // [1] isbn
@@ -265,8 +267,12 @@ function BookManagement(props) {
                         </tr>
                     </tbody>
                 </table>
-                <div></div>
             </div>
+            <AdminBookSearch
+                selectStyle={selectStyle} 
+                bookTypeOptions={bookTypeOptions} 
+                categoryOptions={categoryOptions}
+            />
         </div>
     );
 }
