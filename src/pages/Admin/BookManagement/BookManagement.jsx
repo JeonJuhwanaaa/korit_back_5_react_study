@@ -4,7 +4,7 @@ import BookRegisterInput from "../../../components/BookRegisterInput/BookRegiste
 import * as s from "./style";
 import { useMutation, useQuery } from "react-query";
 import { getAllBookTypeRequest, getAllCategoryRequest } from "../../../apis/api/options";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CiSquarePlus } from "react-icons/ci";
 import { useBookRegisterInput } from "../../../hooks/useBookRegisterInput";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
@@ -13,6 +13,8 @@ import {v4 as uuid} from "uuid";
 import RightTopButton from "../../../components/RightTopButton/RightTopButton";
 import { registerBook } from "../../../apis/api/bookApi";
 import AdminBookSearch from "../../../components/AdminBookSearch/AdminBookSearch";
+import { useRecoilState } from "recoil";
+import { selectedBookState } from "../../../atoms/adminSelectedBookAtom";
 
 function BookManagement(props) {
 
@@ -107,12 +109,25 @@ function BookManagement(props) {
     const isbn = useBookRegisterInput(nextInput, inputRefs[2]);                 // enter 누르면 다음인풋(nextInput) 으로 [2] 으로 가라
     const bookTypeId = useBookRegisterInput(nextInput, inputRefs[3]);
     const categoryId = useBookRegisterInput(nextInput, inputRefs[4]);
-    const bookName = useBookRegisterInput(nextInput, inputRefs[5] );
-    const authorName = useBookRegisterInput(nextInput, inputRefs[6] );
-    const publisherName = useBookRegisterInput(nextInput, inputRefs[7] );
+    const bookName = useBookRegisterInput(nextInput, inputRefs[5]);
+    const authorName = useBookRegisterInput(nextInput, inputRefs[6]);
+    const publisherName = useBookRegisterInput(nextInput, inputRefs[7]);
     const imgUrl = useBookRegisterInput(submit);
 
-    
+    const [ selectedBook, setSelectedBook ] = useRecoilState(selectedBookState);
+
+    useEffect(() => {
+        bookId.setValue(() => selectedBook.bookId);
+        isbn.setValue(() => selectedBook.isbn);
+        bookTypeId.setValue(() => ({value: selectedBook.bookTypeId, label: selectedBook.bookTypeName}));
+        categoryId.setValue(() => ({value: selectedBook.categoryId, label: selectedBook.categoryName}));
+        bookName.setValue(() => selectedBook.bookName);
+        authorName.setValue(() => selectedBook.authorName);
+        publisherName.setValue(() => selectedBook.publisherName);
+        imgUrl.setValue(() => selectedBook.coverImgUrl);
+    },[selectedBook]);
+
+
     const selectStyle = {
         control: baseStyles => ({
             ...baseStyles,
@@ -196,6 +211,8 @@ function BookManagement(props) {
                                 < Select 
                                     styles={selectStyle} 
                                     options={bookTypeOptions}
+                                    value={bookTypeId.value.value}
+                                    inputValue={bookTypeId.value.label}
                                     onKeyDown={bookTypeId.handleOnKeyDown}
                                     onChange={bookTypeId.handleOnChange}
                                     ref={inputRefs[2]}
@@ -206,6 +223,8 @@ function BookManagement(props) {
                                 < Select 
                                     styles={selectStyle} 
                                     options={categoryOptions}
+                                    value={categoryId.value.value}
+                                    inputValue={categoryId.value.label}
                                     onKeyDown={categoryId.handleOnKeyDown}
                                     onChange={categoryId.handleOnChange}
                                     ref={inputRefs[3]}
